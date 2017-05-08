@@ -2,7 +2,7 @@ var grpc = require('grpc');
 var messages = require('./DeviceServer_pb.js');  
 var services = require('./DeviceServer_grpc_pb.js')  
 var request = new messages.RFIDcard_writeData_Request();  
-request.setassetsGloballd('123456789010');
+request.setAssetsGloballd('123456789010');
 request.setSuccess(false);  
 var client = new services.RFIDDeviceServerClient(  
   'localhost:50051',  
@@ -13,5 +13,5 @@ client.RFIDcard_writeData_reply(request, function(err,data){
     console.error(err);  
   }  
   console.log(data);  
-  console.log(data.getHellostring());  
+  console.log(data.getAssetsGloballd());  
 }) 
