@@ -1,0 +1,237 @@
+// Copyright 2015, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+syntax = "proto3";
+
+package RFIDDevice;
+
+// Error Message
+// 错误消息返回
+enum ERRORCODE {
+  ERRORCODE_NONE = 0;					//正常
+  EXCUTION_ERROR = 1001;				//执行失败
+  ACCESS_FAILURE = 1002;
+  SYSTEM_BUSY = 1003;		
+  FAILED_CONNECT_RFIDCARD = 1004;		//连接读写卡失败
+  FAILED_CONNECT_RFIDCARDER = 1005;		//连接写卡器失败
+  FAILED_CONNECT_RFIDPRINTER = 1006;	//连接打印机失败
+}
+
+message ErrorMessage {
+  ERRORCODE errorCode = 1;
+  string errorMsg = 2;  
+}
+
+// RFIDcard
+// 物资管理系统向RFID发卡器发送数据
+message RFIDcard_writeData_Request {
+  string assetsId = 1;			//资产ID（唯一）
+  string assetsName = 2;		//资产名称
+}
+
+message RFIDcard_writeData_reply {
+  string assetsGloballd = 1; 	//硬件标签全球唯一ID
+  bool success = 2;  			//是否执行成功
+  ErrorMessage errormsg = 3;	//错误消息
+}
+
+//RFIDprint
+//物资管理系统向RFID打印机发送数据
+message RFIDprint_writeData_Request {
+  string assetsId = 1;			//资产ID（唯一）
+  string companyName = 2;		//公司名称
+  string devpementNmae = 3;		//部门名称
+  string assetsName = 4;		//资产名称
+  string assetsType = 5;		//资产类型
+  string assetsModel = 6;		//资产型号 
+  string url = 7;				//web展示页
+  string date = 8;				//创建时间
+}
+
+message RFIDprint_writeData_reply {
+  bool success = 1;  			//是否执行成功
+  ErrorMessage errormsg = 2;	//错误消息 
+}
+
+//RFIDread
+//RFID阅读器向物资管理系统发送数据
+message AssetSunfo {
+  string assetsId = 1;			//资产ID（唯一） 
+  string assetsName = 2;		//资产名称 
+}
+
+message RFIDread_writeData_Request {
+  repeated AssetSunfo assetsInfo = 1; 	//资产读取列表
+  string checkName = 2;					//检测地点
+}
+
+message RFIDread_writeData_reply {
+  bool success = 1;  			//是否执行成功
+  ErrorMessage errormsg = 2;	//错误消息 
+}
+
+//RFIDAPP
+//手持终端系统向物资管理系统发送设备
+//get assets info
+//获取物资状态
+message AssetsStatesInfo{
+  int32 states_index = 1;
+  string states_name = 2;
+}
+
+message Get_assetsInfo_request {
+  string assetsId = 1;			//资产ID（唯一）  
+}
+
+message Get_assetsInfo_reply {
+  string assetsId = 1;			//资产ID（唯一）
+  string companyName = 2;		//公司名称
+  string devpementNmae = 3;		//部门名称
+  string assetsName = 4;		//资产名称
+  string assetsType = 5;		//资产类型
+  string assetsModel = 6;		//资产型号
+  string url = 7;				//web展示页
+  string date = 8;				//创建时间
+  AssetsStatesInfo assets_states_info_curent = 9; //物资当前状态
+  repeated AssetsStatesInfo assets_states_info_list = 10; //物资状态信息   
+}
+
+//modify assets info
+//修改出入库状态(保持记录)
+enum RFIDSTATETYPE {
+  RFID_NONE = 0;				//无RFID
+  RFID_IN = 1;					//物资入库
+  RFID_OUT = 2;					//物资出库
+}
+
+message Modify_assetsInfo_request {
+  string assetsId = 1;			//资产ID（唯一） 
+  string assetsName = 2;		//资产名称 
+  RFIDSTATETYPE type = 3;		//RFID状态
+  AssetsStatesInfo assets_states_info_curent = 4;	//物资状态 
+  string terminalId = 5;		//手持终端ID
+}
+
+message Modify_assetsInfo_reply {
+  bool success = 1;  			//是否执行成功
+  ErrorMessage errormsg = 2;	//错误消息 
+}
+
+//get stock list
+//获取资产盘点列表
+message StockInfo {
+  string stockId = 1;			//资产盘点ID
+  string stockName = 2;			//资产盘点名称
+  string stockDate = 3;  		//资产盘点日期
+  string stockUserName = 4;		//资产盘点负责人
+}
+
+message Get_stockList_request {
+  string terminalId = 1;		//手持终端ID	
+}
+
+message Get_stockList_reply {
+  repeated StockInfo stockInfo= 1;	//盘点资产信息
+  bool success = 2;  				//是否执行成功
+  ErrorMessage errormsg = 3;		//错误消息 
+}
+
+//get stock info list
+//获取盘点列表详细信息
+message AssertsList {
+  string assetsId = 1;			//资产ID
+  string assetsName = 2;  		//资产名称
+  string placeLocation = 3;		//放置地点  
+}
+
+message Get_assertsList_request {
+  string terminalId = 1;		//所持终端ID
+  string stockId = 2;  			//盘点计划ID名称
+}
+
+message Get_assertsList_reply {
+  repeated AssertsList assertlist = 1;	//资产列表信息
+  bool success = 2;  					//是否执行成功
+  ErrorMessage errormsg = 3;			//错误消息 
+}
+
+//update assets info
+//上传盘点设备信息
+message AssertsListUpdate {
+  string assertsId = 1;			//资产ID
+  bool isStock = 2;  			//是否被盘点 true 盘点 false 未盘点
+}
+
+message Update_assetsList_request {
+  string terminalId = 1;				//所持终端ID
+  string stockId = 2;  					//盘点计划ID名称 
+  repeated AssertsListUpdate update = 3;//固定资产列表
+}
+
+message Update_assetsList_reply {
+  bool success = 1;  			//是否执行成功
+  ErrorMessage errormsg = 2;	//错误消息 
+}
+
+//add message terminal info
+//盘点人详细名称
+message Get_terminal_info_request {
+  string terminalId = 1;				//所持终端ID
+}
+
+message Get_terminal_info_reply{
+  string terminal_name = 1;				//所持终端名称（盘点负责人）
+  //string terminal_department = 2;  
+}
+ 
+// The RFID Device service definition.
+service RFIDDeviceServer {
+  // RFID card
+  rpc RFIDcard_writeData (RFIDcard_writeData_Request) returns (RFIDcard_writeData_reply) {}
+  // RFID print
+  rpc RFIDprint_writeData (RFIDprint_writeData_Request) returns (RFIDprint_writeData_reply) {}   
+}
+
+// The System Device server
+service SystemDeviceServer {
+  // RFID read
+  rpc RFIDread_writeData (RFIDread_writeData_Request) returns (RFIDread_writeData_reply) {}  
+  // RFID APP
+  rpc GetAssetsInfo (Get_assetsInfo_request) returns (Get_assetsInfo_reply) {}
+  // terminal info 
+  rpc GetTerminaInfo (Get_terminal_info_request) returns (Get_terminal_info_reply) {}
+  // modify assets info
+  rpc ModifyAssetsInfo (Modify_assetsInfo_request) returns (Modify_assetsInfo_reply) {}
+  // get staock list
+  rpc GetStaockList (Get_stockList_request) returns (Get_stockList_reply) {}  
+  // get assert list
+  rpc GetAssertsList (Get_assertsList_request) returns (Get_assertsList_reply) {}
+  // update assets list
+  rpc UpdateAssetsList (Update_assetsList_request) returns (Update_assetsList_reply) {}  
+}
